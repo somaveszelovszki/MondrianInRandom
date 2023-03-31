@@ -29,7 +29,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val displayMetrics = DisplayMetrics()
                     windowManager.defaultDisplay.getMetrics(displayMetrics)
-                    val bitmap = ImageGenerator(displayMetrics.widthPixels, displayMetrics.heightPixels).generateImage()
+                    val width = displayMetrics.widthPixels
+                    val height = displayMetrics.heightPixels
+                    val lineGenerator = RandomLineGenerator(width, height)
+                    val bitmap = ImageGenerator(width, height, lineGenerator).generateImage()
 
                     Image(
                         bitmap = bitmap.asImageBitmap(),
