@@ -1,29 +1,52 @@
 package hu.soma.veszelovszki.mondrianinrandom
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import androidx.core.graphics.createBitmap
+import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.abs
 import kotlin.random.Random
 
 enum class Alignment { HORIZONTAL, VERTICAL }
 
+data class Rectangle(
+    val left: Int, val top: Int, val right: Int, val bottom: Int, val color: Int
+) {
+    fun toRect(): Rect = Rect(left, top, right, bottom)
+}
+
 data class Line(
-    val strokeWidth: Int,
-    val startX: Int,
-    val startY: Int,
     val alignment: Alignment,
-    val length: Int
-) {}
+    val fixCoordinate: Int,
+    val dynamicCoordinates: Pair<Int, Int>,
+    val strokeWidth: Int,
+    val visible: Boolean = true
+) {
+    val left
+        get() = if (alignment == Alignment.VERTICAL) fixCoordinate else dynamicCoordinates.first
+
+    val top
+        get() = if (alignment == Alignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.first
+
+    val right
+        get() = if (alignment == Alignment.VERTICAL) fixCoordinate else dynamicCoordinates.second
+
+    val bottom
+        get() = if (alignment == Alignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.second
+}
+
+fun Canvas.drawRect(rect: Rectangle): Unit {
+    val paint = Paint().apply {
+        color = rect.color
+        isAntiAlias = true
+        isDither = true
+        style = Paint.Style.FILL
+    }
+
+    drawRect(rect.toRect(), paint)
+}
 
 fun Canvas.drawLine(line: Line): Unit {
-    val stopX = if (line.alignment == Alignment.VERTICAL) line.startX else line.startX + line.length
-    val stopY =
-        if (line.alignment == Alignment.HORIZONTAL) line.startY else line.startY + line.length
-
     val paint = Paint().apply {
         color = Color.BLACK
         isAntiAlias = true
@@ -32,27 +55,35 @@ fun Canvas.drawLine(line: Line): Unit {
         strokeWidth = line.strokeWidth.toFloat()
     }
 
-    drawLine(line.startX.toFloat(), line.startY.toFloat(), stopX.toFloat(), stopY.toFloat(), paint)
+    drawLine(
+        line.left.toFloat(), line.top.toFloat(), line.right.toFloat(), line.bottom.toFloat(), paint
+    )
 }
 
 class ImageGenerator(private val width: Int, private val height: Int) {
     private val strokeWidth = width / 50
 
+    private val bitmap = createBitmap(width, height)
+    private val canvas = Canvas(bitmap)
+
+    private val numLines = Random.nextInt(3, 8)
+
+    private val lines = mutableListOf(
+        Line(Alignment.VERTICAL, 0, Pair(0, height), strokeWidth, false), // left
+        Line(Alignment.HORIZONTAL, 0, Pair(0, width), strokeWidth, false), // top
+        Line(Alignment.VERTICAL, width, Pair(0, height), strokeWidth, false), // right
+        Line(Alignment.HORIZONTAL, height, Pair(0, width), strokeWidth, false) // bottom
+    )
+
+    private val rectangles = mutableListOf(Rectangle(0, 0, width, height, Color.WHITE))
+
     fun generateImage(): Bitmap {
-        val bitmap = createBitmap(width, height)
-        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
 
-        val frame = 10.0f
-        canvas.drawColor(Color.BLACK)
-        val paint = Paint().apply {
-            color = Color.WHITE
-            isAntiAlias = true
-            isDither = true
-            style = Paint.Style.FILL
+        for (i in 0 until numLines) {
+            val line = makeLine(getNextLineAlignment(i))
+            lines.add(line)
         }
-        canvas.drawRect(frame, frame, width - frame, height - frame, paint)
-
-        val lines = getLines()
 
         lines.forEach {
             canvas.drawLine(it)
@@ -61,69 +92,50 @@ class ImageGenerator(private val width: Int, private val height: Int) {
         return bitmap
     }
 
-    private fun getLines(): List<Line> {
-        val horizontalStartPositions = getShuffledLinePositions(height)
-        val verticalStartPositions = getShuffledLinePositions(width)
+    private fun makeLine(alignment: Alignment): Line {
+        val parallelLinePositions =
+            lines.filter { it.alignment == alignment }.map { it.fixCoordinate }
+        val fixCoordinate = getRandomLinePosition(alignment, parallelLinePositions)
 
-        return buildList {
+        val perpendicularLinePositions =
+            lines.filter { it.alignment != alignment && it.dynamicCoordinates.first <= fixCoordinate && it.dynamicCoordinates.second >= fixCoordinate }
 
-            val addedHorizontalPositions = mutableListOf<Int>()
-            val addedVerticalPositions = mutableListOf<Int>()
+        val p1 = perpendicularLinePositions.random().fixCoordinate
+        var p2 = 0
+        do {
+            p2 = perpendicularLinePositions.random().fixCoordinate
+        } while (p1 == p2)
 
-            while (horizontalStartPositions.isNotEmpty() || verticalStartPositions.isNotEmpty()) {
-                if (verticalStartPositions.isNotEmpty() && (horizontalStartPositions.isEmpty() || Random.nextBoolean())) {
-                    val startPosX = verticalStartPositions[0]
+        val dynamicCoordinates = Pair(min(p1, p2), max(p1, p2))
 
-                    val (y1, y2) = if (addedHorizontalPositions.isEmpty()) Pair(
-                        0,
-                        height
-                    ) else Pair(
-                        if (Random.nextBoolean()) 0 else height, addedHorizontalPositions.random()
-                    )
-
-                    add(Line(strokeWidth, startPosX, min(y1, y2), Alignment.VERTICAL, abs(y1 - y2)))
-
-                    verticalStartPositions.removeAt(0)
-                    addedVerticalPositions.add(startPosX)
-                } else {
-                    val startPosY = horizontalStartPositions[0]
-
-                    val (x1, x2) = if (addedVerticalPositions.isEmpty()) Pair(0, width) else Pair(
-                        if (Random.nextBoolean()) 0 else width, addedVerticalPositions.random()
-                    )
-
-                    add(
-                        Line(
-                            strokeWidth, min(x1, x2), startPosY, Alignment.HORIZONTAL, abs(x1 - x2)
-                        )
-                    )
-
-                    horizontalStartPositions.removeAt(0)
-                    addedHorizontalPositions.add(startPosY)
-                }
-            }
-        }
+        return Line(alignment, fixCoordinate, dynamicCoordinates, strokeWidth)
     }
 
-    private fun getShuffledLinePositions(sectionLength: Int): MutableList<Int> {
-        val numLines = Random.nextInt(1, 3)
-        val positions = mutableListOf<Int>()
+    private fun getNextLineAlignment(index: Int): Alignment {
+        if (index == numLines - 1) {
+            if (lines.none { it.visible && it.alignment == Alignment.VERTICAL }) {
+                return Alignment.VERTICAL
+            }
 
-        for (i in 0 until numLines) {
-            val prevPos = if (positions.isEmpty()) 0 else positions.last()
-            val maxPos = sectionLength - (numLines - i) * strokeWidth * 5
-
-            positions.add(
-                Random.nextInt(
-                    prevPos + strokeWidth * 5, maxPos
-                )
-            )
+            if (lines.none { it.visible && it.alignment == Alignment.HORIZONTAL }) {
+                return Alignment.HORIZONTAL
+            }
         }
 
-        return positions.shuffled().toMutableList()
+        return if (Random.nextBoolean()) Alignment.VERTICAL else Alignment.HORIZONTAL
+    }
+
+    private fun getRandomLinePosition(alignment: Alignment, existingLines: List<Int>): Int {
+        var pos = 0
+
+        do {
+            pos = Random.nextInt(0, if (alignment == Alignment.VERTICAL) width else height)
+        } while (existingLines.any { abs(it - pos) < strokeWidth * 5 })
+
+        return pos
     }
 
     private fun getFillColor(): Int {
-        return listOf(Color.BLUE, Color.RED, Color.YELLOW).random()
+        return listOf(Color.BLUE, Color.RED, Color.YELLOW, Color.WHITE).random()
     }
 }

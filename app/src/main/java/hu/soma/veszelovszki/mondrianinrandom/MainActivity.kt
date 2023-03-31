@@ -1,6 +1,7 @@
 package hu.soma.veszelovszki.mondrianinrandom
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -26,7 +27,9 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
-                    val bitmap = ImageGenerator(500, 500).generateImage()
+                    val displayMetrics = DisplayMetrics()
+                    windowManager.defaultDisplay.getMetrics(displayMetrics)
+                    val bitmap = ImageGenerator(displayMetrics.widthPixels, displayMetrics.heightPixels).generateImage()
 
                     Image(
                         bitmap = bitmap.asImageBitmap(),
