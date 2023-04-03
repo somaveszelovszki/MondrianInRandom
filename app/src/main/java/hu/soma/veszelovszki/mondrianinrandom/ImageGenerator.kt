@@ -4,12 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.core.graphics.createBitmap
-import java.lang.Integer.max
-import java.lang.Integer.min
-import kotlin.math.abs
 import kotlin.random.Random
 
-class ImageGenerator(private val width: Int, private val height: Int, private val lineGenerator: LineGenerator) {
+class ImageGenerator(
+    private val width: Int,
+    private val height: Int,
+    private val lineGenerator: LineGenerator
+) {
     private val bitmap = createBitmap(width, height)
     private val canvas = Canvas(bitmap)
     private val rectangles = mutableListOf(Rectangle(0, 0, width, height))
@@ -17,7 +18,7 @@ class ImageGenerator(private val width: Int, private val height: Int, private va
     fun generateImage(): Bitmap {
         canvas.drawColor(Color.WHITE)
 
-        val numLines = Random.nextInt(3, 4)
+        val numLines = Random.nextInt(4, 8)
         val lines = lineGenerator.generateLines(numLines)
 
         for (line in lines) {
@@ -46,9 +47,8 @@ class ImageGenerator(private val width: Int, private val height: Int, private va
         return bitmap
     }
 
-    private fun assignFillColors(): Unit {
-        val colors = listOf(Color.BLUE, Color.RED, Color.YELLOW)
-        val numColoredRectangles = Random.nextInt(2, 5)
+    private fun assignFillColors() {
+        val numColoredRectangles = Random.nextInt(3, 6)
         val largestArea = rectangles.maxBy { it.area }.area
 
         for (i in 0 until numColoredRectangles) {
@@ -62,7 +62,15 @@ class ImageGenerator(private val width: Int, private val height: Int, private va
                 break
             }
 
-            candidates.random().color = colors.random()
+            candidates.random().color = getNextFillColor()
         }
+    }
+
+    private fun getNextFillColor(): Int {
+        val colors = listOf(Color.BLUE, Color.RED, Color.YELLOW)
+        val colorDistribution = colors.associateWith { c -> rectangles.count { r -> r.color == c } }
+        val minCount = colorDistribution.minBy { it.value }.value
+        val candidates = colorDistribution.filterValues { it == minCount }.keys
+        return candidates.random()
     }
 }

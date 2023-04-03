@@ -71,9 +71,9 @@ data class Rectangle(
 
     fun hasCommonEdgeWith(other: Rectangle): Boolean {
         return if (top == other.bottom || bottom == other.top) {
-            (left > other.left && left < other.right) || (right > other.left && right < other.right)
+            left < other.right && right > other.left
         } else if (left == other.right || right == other.left) {
-            (top > other.top && top < other.bottom) || (bottom > other.top && bottom < other.bottom)
+            top < other.bottom && bottom > other.top
         } else {
             false
         }

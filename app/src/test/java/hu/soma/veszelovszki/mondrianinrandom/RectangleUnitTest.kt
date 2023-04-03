@@ -38,9 +38,27 @@ class RectangleUnitTest {
     }
 
     @Test
+    fun rectangle_hasCommonEdgeWith_verticalEdgeSubset() {
+        val r1 = Rectangle(10, 10, 100, 100)
+        val r2 = Rectangle(100, 5, 200, 200)
+
+        assertTrue(r1.hasCommonEdgeWith(r2))
+        assertTrue(r2.hasCommonEdgeWith(r1))
+    }
+
+    @Test
     fun rectangle_hasCommonEdgeWith_commonHorizontalEdge() {
         val r1 = Rectangle(10, 10, 100, 100)
         val r2 = Rectangle(50, 100, 200, 200)
+
+        assertTrue(r1.hasCommonEdgeWith(r2))
+        assertTrue(r2.hasCommonEdgeWith(r1))
+    }
+
+    @Test
+    fun rectangle_hasCommonEdgeWith_horizontalEdgeSubset() {
+        val r1 = Rectangle(10, 10, 100, 100)
+        val r2 = Rectangle(5, 100, 200, 200)
 
         assertTrue(r1.hasCommonEdgeWith(r2))
         assertTrue(r2.hasCommonEdgeWith(r1))

@@ -46,7 +46,8 @@ class RandomLineGenerator(
     }
 
     private fun getNextLineAlignment(lines: List<Line>, numLines: Int): Alignment {
-        if (lines.size == numLines - 1) {
+        val remaining = numLines - (lines.size - 4)
+        if (remaining == 1) {
             if (lines.none { it.visible && it.alignment == Alignment.VERTICAL }) {
                 return Alignment.VERTICAL
             }
