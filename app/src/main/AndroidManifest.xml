@@ -14,14 +14,29 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MondrianInRandom">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LockScreenActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MondrianInRandom"
+            android:launchMode="singleInstance">
+        </activity>
+        <service android:name=".ScreenStateService" />
+        <receiver
+            android:name=".ScreenStateReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ACTION_BOOT_COMPLETED" />
+                <action android:name="ACTION_SCREEN_ON" />
+                <action android:name="ACTION_SCREEN_OFF" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
