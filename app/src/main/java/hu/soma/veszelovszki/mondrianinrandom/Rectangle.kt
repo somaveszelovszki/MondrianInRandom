@@ -21,7 +21,7 @@ data class Rectangle(
         get() = if (isEmpty()) 0 else (right - left) * (bottom - top)
 
     fun crop(line: Line): Rectangle {
-        if (line.alignment == Alignment.VERTICAL) {
+        if (line.alignment == LineAlignment.VERTICAL) {
             return if (line.fixCoordinate <= left || line.fixCoordinate >= right || line.top >= bottom || line.bottom <= top) {
                 Rectangle()
             } else {

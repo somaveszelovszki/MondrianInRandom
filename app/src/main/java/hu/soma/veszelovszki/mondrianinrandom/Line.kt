@@ -4,26 +4,26 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 
-enum class Alignment { HORIZONTAL, VERTICAL }
+enum class LineAlignment { HORIZONTAL, VERTICAL }
 
 data class Line(
-    val alignment: Alignment,
+    val alignment: LineAlignment,
     val fixCoordinate: Int,
     val dynamicCoordinates: Pair<Int, Int>,
     val strokeWidth: Int,
     val visible: Boolean = true
 ) {
     val left
-        get() = if (alignment == Alignment.VERTICAL) fixCoordinate else dynamicCoordinates.first
+        get() = if (alignment == LineAlignment.VERTICAL) fixCoordinate else dynamicCoordinates.first
 
     val top
-        get() = if (alignment == Alignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.first
+        get() = if (alignment == LineAlignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.first
 
     val right
-        get() = if (alignment == Alignment.VERTICAL) fixCoordinate else dynamicCoordinates.second
+        get() = if (alignment == LineAlignment.VERTICAL) fixCoordinate else dynamicCoordinates.second
 
     val bottom
-        get() = if (alignment == Alignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.second
+        get() = if (alignment == LineAlignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.second
 }
 
 fun Canvas.drawLine(line: Line): Unit {

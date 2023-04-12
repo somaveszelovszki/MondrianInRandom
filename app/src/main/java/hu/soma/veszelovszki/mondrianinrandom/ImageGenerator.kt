@@ -7,13 +7,19 @@ import androidx.core.graphics.createBitmap
 import kotlin.random.Random
 
 class ImageGenerator(
-    private val width: Int,
-    private val height: Int,
     private val lineGenerator: LineGenerator
 ) {
-    private val bitmap = createBitmap(width, height)
+    private val bitmap =
+        createBitmap(lineGenerator.canvasSize.width, lineGenerator.canvasSize.height)
     private val canvas = Canvas(bitmap)
-    private val rectangles = mutableListOf(Rectangle(0, 0, width, height))
+    private val rectangles = mutableListOf(
+        Rectangle(
+            0,
+            0,
+            lineGenerator.canvasSize.width,
+            lineGenerator.canvasSize.height
+        )
+    )
 
     fun generateImage(): Bitmap {
         canvas.drawColor(Color.WHITE)

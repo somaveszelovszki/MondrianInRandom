@@ -1,26 +1,41 @@
 package hu.soma.veszelovszki.mondrianinrandom
 
+import android.util.Size
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-interface LineGenerator {
-    fun generateLines(numLines: Int): List<Line>
+abstract class LineGenerator(val canvasSize: Size) {
+    abstract fun generateLines(numLines: Int): List<Line>
 }
 
-class RandomLineGenerator(
-    private val width: Int, private val height: Int
-) : LineGenerator {
-    private val strokeWidth = width / 50
+class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
+    private val strokeWidth = 20//canvasSize.width / 50
 
     override fun generateLines(numLines: Int): List<Line> {
-        return buildList<Line> {
+        return buildList {
 
-            add(Line(Alignment.VERTICAL, 0, Pair(0, height), strokeWidth, false)) // left
-            add(Line(Alignment.HORIZONTAL, 0, Pair(0, width), strokeWidth, false)) // top
-            add(Line(Alignment.VERTICAL, width, Pair(0, height), strokeWidth, false)) // right
-            add(Line(Alignment.HORIZONTAL, height, Pair(0, width), strokeWidth, false)) // bottom
+            add(Line(LineAlignment.VERTICAL, 0, Pair(0, canvasSize.height), strokeWidth, false)) // left
+            add(Line(LineAlignment.HORIZONTAL, 0, Pair(0, canvasSize.width), strokeWidth, false)) // top
+            add(
+                Line(
+                    LineAlignment.VERTICAL,
+                    canvasSize.width,
+                    Pair(0, canvasSize.height),
+                    strokeWidth,
+                    false
+                )
+            ) // right
+            add(
+                Line(
+                    LineAlignment.HORIZONTAL,
+                    canvasSize.height,
+                    Pair(0, canvasSize.width),
+                    strokeWidth,
+                    false
+                )
+            ) // bottom
 
             for (i in 0 until numLines) {
                 val alignment = getNextLineAlignment(this, numLines)
@@ -45,26 +60,29 @@ class RandomLineGenerator(
         }
     }
 
-    private fun getNextLineAlignment(lines: List<Line>, numLines: Int): Alignment {
+    private fun getNextLineAlignment(lines: List<Line>, numLines: Int): LineAlignment {
         val remaining = numLines - (lines.size - 4)
         if (remaining == 1) {
-            if (lines.none { it.visible && it.alignment == Alignment.VERTICAL }) {
-                return Alignment.VERTICAL
+            if (lines.none { it.visible && it.alignment == LineAlignment.VERTICAL }) {
+                return LineAlignment.VERTICAL
             }
 
-            if (lines.none { it.visible && it.alignment == Alignment.HORIZONTAL }) {
-                return Alignment.HORIZONTAL
+            if (lines.none { it.visible && it.alignment == LineAlignment.HORIZONTAL }) {
+                return LineAlignment.HORIZONTAL
             }
         }
 
-        return if (Random.nextBoolean()) Alignment.VERTICAL else Alignment.HORIZONTAL
+        return if (Random.nextBoolean()) LineAlignment.VERTICAL else LineAlignment.HORIZONTAL
     }
 
-    private fun getRandomLinePosition(alignment: Alignment, existingLines: List<Int>): Int {
+    private fun getRandomLinePosition(alignment: LineAlignment, existingLines: List<Int>): Int {
         var pos: Int
 
         do {
-            pos = Random.nextInt(0, if (alignment == Alignment.VERTICAL) width else height)
+            pos = Random.nextInt(
+                0,
+                if (alignment == LineAlignment.VERTICAL) canvasSize.width else canvasSize.height
+            )
         } while (existingLines.any { abs(it - pos) < strokeWidth * 5 })
 
         return pos
