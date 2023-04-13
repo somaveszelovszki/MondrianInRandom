@@ -12,44 +12,24 @@ import android.util.Size
 import android.view.Display
 import androidx.core.hardware.display.DisplayManagerCompat
 
-class ScreenStatusReceiver : BroadcastReceiver() {
-    enum class JobId { RegisterScreenOffReceiver, SetWallpaper }
-
+class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            Log.d("ScreenStatusReceiver", "Boot completed")
-            scheduleJob<RegisterScreenOffReceiverService>(context, JobId.RegisterScreenOffReceiver)
-        } else {
-            Log.d("ScreenStatusReceiver", "Screen off")
+            Log.d(TAG, "Boot completed")
+
+            val serviceComponent = ComponentName(context, SetWallpaperService::class.java)
+            val builder =
+                JobInfo.Builder(1, serviceComponent).setPeriodic(1000) // runs every hour
+            context.getSystemService(JobScheduler::class.java).schedule(builder.build())
         }
-
-        scheduleJob<SetWallpaperService>(context, JobId.SetWallpaper)
-    }
-
-    private inline fun <reified T> scheduleJob(context: Context, id: JobId) {
-        val serviceComponent = ComponentName(context, T::class.java)
-        val builder = JobInfo.Builder(id.ordinal, serviceComponent)
-        context.getSystemService(JobScheduler::class.java).schedule(builder.build())
-    }
-}
-
-class RegisterScreenOffReceiverService : JobService() {
-    override fun onStartJob(params: JobParameters?): Boolean {
-        Log.d("RegisterScreenOffReceiverService", "Job started")
-        registerReceiver(ScreenStatusReceiver(), IntentFilter(Intent.ACTION_SCREEN_OFF))
-        return true
-    }
-
-    override fun onStopJob(params: JobParameters?): Boolean {
-        return true
     }
 }
 
 class SetWallpaperService : JobService() {
     override fun onStartJob(params: JobParameters?): Boolean {
-        Log.d("SetWallpaperService", "Job started")
+        Log.d(TAG, "Job started")
         generateImage().also { bitmap -> setLockScreenWallpaper(bitmap) }
-        return true
+        return false
     }
 
     override fun onStopJob(params: JobParameters?): Boolean {

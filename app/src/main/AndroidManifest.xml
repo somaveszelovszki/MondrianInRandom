@@ -25,13 +25,10 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".RegisterScreenOffReceiverService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
             android:name=".SetWallpaperService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <receiver
-            android:name=".ScreenStatusReceiver"
+            android:name=".BootCompletedReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
