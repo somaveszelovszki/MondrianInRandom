@@ -11,7 +11,7 @@ abstract class LineGenerator(val canvasSize: Size) {
 }
 
 class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
-    private val strokeWidth = 20//canvasSize.width / 50
+    private val strokeWidth = canvasSize.width / 50
 
     override fun generateLines(numLines: Int): List<Line> {
         return buildList {
@@ -61,13 +61,14 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
     }
 
     private fun getNextLineAlignment(lines: List<Line>, numLines: Int): LineAlignment {
+        val minAligned = 2
         val remaining = numLines - (lines.size - 4)
-        if (remaining == 1) {
-            if (lines.none { it.visible && it.alignment == LineAlignment.VERTICAL }) {
+        if (remaining <= minAligned) {
+            if (lines.count { it.visible && it.alignment == LineAlignment.VERTICAL } < minAligned) {
                 return LineAlignment.VERTICAL
             }
 
-            if (lines.none { it.visible && it.alignment == LineAlignment.HORIZONTAL }) {
+            if (lines.count { it.visible && it.alignment == LineAlignment.HORIZONTAL } < minAligned) {
                 return LineAlignment.HORIZONTAL
             }
         }

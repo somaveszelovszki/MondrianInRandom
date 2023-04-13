@@ -3,6 +3,7 @@ package hu.soma.veszelovszki.mondrianinrandom
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.util.Log
 import androidx.core.graphics.createBitmap
 import kotlin.random.Random
 
@@ -14,20 +15,18 @@ class ImageGenerator(
     private val canvas = Canvas(bitmap)
     private val rectangles = mutableListOf(
         Rectangle(
-            0,
-            0,
-            lineGenerator.canvasSize.width,
-            lineGenerator.canvasSize.height
+            0, 0, lineGenerator.canvasSize.width, lineGenerator.canvasSize.height
         )
     )
 
     fun generateImage(): Bitmap {
         canvas.drawColor(Color.WHITE)
 
-        val numLines = Random.nextInt(4, 8)
-        val lines = lineGenerator.generateLines(numLines)
+        val numVisibleLines = Random.nextInt(5, 9)
+        val allLines = lineGenerator.generateLines(numVisibleLines)
+        val visibleLines = allLines.filter { it.visible }
 
-        for (line in lines) {
+        for (line in allLines) {
             val newRectangles = mutableListOf<Rectangle>()
 
             for (rect in rectangles) {
@@ -46,7 +45,7 @@ class ImageGenerator(
             canvas.drawRect(it)
         }
 
-        lines.filter { it.visible }.forEach {
+        visibleLines.forEach {
             canvas.drawLine(it)
         }
 
@@ -55,11 +54,10 @@ class ImageGenerator(
 
     private fun assignFillColors() {
         val numColoredRectangles = Random.nextInt(3, 6)
-        val largestArea = rectangles.maxBy { it.area }.area
 
         for (i in 0 until numColoredRectangles) {
             val candidates = rectangles.filter { r1 ->
-                r1.area < largestArea && r1.color == null && rectangles.none { r2 ->
+                r1.color == null && rectangles.none { r2 ->
                     r2.color != null && r1.hasCommonEdgeWith(r2)
                 }
             }
@@ -68,12 +66,22 @@ class ImageGenerator(
                 break
             }
 
-            candidates.random().color = getNextFillColor()
+            val rect = candidates.random()
+            rect.color = getNextFillColor(rect.area)
         }
     }
 
-    private fun getNextFillColor(): Int {
-        val colors = listOf(Color.BLUE, Color.RED, Color.YELLOW)
+    private fun getNextFillColor(area: Int): Int {
+        val colors = buildList {
+            add(Color.RED)
+            add(Color.YELLOW)
+            add(Color.BLUE)
+
+            if (area < lineGenerator.canvasSize.width * lineGenerator.canvasSize.height / 16) {
+                add(Color.BLACK)
+            }
+        }
+
         val colorDistribution = colors.associateWith { c -> rectangles.count { r -> r.color == c } }
         val minCount = colorDistribution.minBy { it.value }.value
         val candidates = colorDistribution.filterValues { it == minCount }.keys
