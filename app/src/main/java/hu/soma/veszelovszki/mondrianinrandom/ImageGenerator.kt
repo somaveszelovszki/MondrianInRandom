@@ -3,7 +3,6 @@ package hu.soma.veszelovszki.mondrianinrandom
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.util.Log
 import androidx.core.graphics.createBitmap
 import kotlin.random.Random
 

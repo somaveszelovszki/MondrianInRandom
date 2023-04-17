@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -18,6 +19,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+
+data class Letter(@DrawableRes val resId: Int, val index: Float) {}
 
 @Composable
 fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = null) {

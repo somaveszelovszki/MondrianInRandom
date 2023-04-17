@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import hu.soma.veszelovszki.mondrianinrandom.ui.theme.MondrianInRandomTheme
 
-data class Letter(@DrawableRes val resId: Int, val index: Float) {}
-
 class MainActivity : ComponentActivity() {
     enum class MainPageState { Animation, FeatureSelector }
 
