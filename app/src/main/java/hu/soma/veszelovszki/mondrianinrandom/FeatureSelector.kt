@@ -12,6 +12,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Displays a checkbox with a label.
+ *
+ * @param checked Indicates if the checkbox is checked
+ * @param text The text to display next to the checkbox
+ * @param onCheckedChange Callback to be invoked when the checkbox is being clicked
+ */
 @Composable
 fun LabelledCheckbox(checked: Boolean, text: String, onCheckedChange: ((Boolean) -> Unit)?) {
     Row(
@@ -30,6 +37,13 @@ fun LabelledCheckbox(checked: Boolean, text: String, onCheckedChange: ((Boolean)
     }
 }
 
+/**
+ * Displays checkboxes for the user to enable/disable home screen and lock screen wallpaper generation.
+ *
+ * @param defaultSystemEnabled The default value for the system wallpaper checkbox
+ * @param defaultLockScreenEnabled The default value for the lock-screen wallpaper checkbox
+ * @param onSaved The callback to be invoked when the 'SAVE & CLOSE' button is being clicked
+ */
 @Preview
 @Composable
 fun FeatureSelector(

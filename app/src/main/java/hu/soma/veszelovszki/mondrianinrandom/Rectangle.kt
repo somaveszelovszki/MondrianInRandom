@@ -6,6 +6,15 @@ import android.graphics.Paint
 import android.graphics.Rect
 import kotlin.math.abs
 
+/**
+ * Represents a colored rectangle.
+ *
+ * @param left The left coordinate
+ * @param top The top coordinate
+ * @param right The right coordinate
+ * @param bottom The bottom coordinate
+ * @param color The color of the rectangle
+ */
 data class Rectangle(
     var left: Int = 0,
     var top: Int = 0,
@@ -13,13 +22,32 @@ data class Rectangle(
     var bottom: Int = 0,
     var color: Int? = null
 ) {
+    /**
+     * Converts the rectangle to a Rect type.
+     * @return The rectangle as a Rect
+     */
     fun toRect(): Rect = Rect(left, top, right, bottom)
 
+    /**
+     * Checks if the rectangle is empty.
+     * @return True if the rectangle is empty, false otherwise
+     */
     fun isEmpty() = left >= right || top >= bottom
 
+    /**
+     * The area of the rectangle.
+     */
     val area
         get() = if (isEmpty()) 0 else (right - left) * (bottom - top)
 
+    /**
+     * Crops the rectangle by a line.
+     * If the line intersects the rectangle, the slice with the bigger area is kept, the other is returned.
+     * If the line does not intersects the rectangle, an empty rectangle is returned.
+     *
+     * @param line The line
+     * @return The smaller slice after the cropping
+     */
     fun crop(line: Line): Rectangle {
         if (line.alignment == LineAlignment.VERTICAL) {
             return if (line.fixCoordinate <= left || line.fixCoordinate >= right || line.top >= bottom || line.bottom <= top) {
@@ -69,6 +97,12 @@ data class Rectangle(
         }
     }
 
+    /**
+     * Checks if the two rectangles have a common edge.
+     *
+     * @param other The other rectangle
+     * @return True if the two rectangles have a common edge, false otherwise
+     */
     fun hasCommonEdgeWith(other: Rectangle): Boolean {
         return if (top == other.bottom || bottom == other.top) {
             left < other.right && right > other.left
@@ -80,6 +114,11 @@ data class Rectangle(
     }
 }
 
+/**
+ * Draw a rectangle on the canvas.
+ *
+ * @param rect The rectangle
+ */
 fun Canvas.drawRect(rect: Rectangle): Unit {
     val paint = Paint().apply {
         color = rect.color ?: Color.WHITE

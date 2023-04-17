@@ -13,6 +13,10 @@ import androidx.work.*
 import java.time.Duration
 import java.util.*
 
+/**
+ * Broadcast receiver for the phone boot event.
+ * Schedules a periodic action to set the wallpaper to a random-generated Mondrian-style picture.
+ */
 class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
@@ -22,6 +26,9 @@ class BootCompletedReceiver : BroadcastReceiver() {
     }
 }
 
+/**
+ * Worker class for generating a random Mondrian-style picture and settings it as wallpaper.
+ */
 class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
     companion object {
         const val ONE_TIME_WORKER_TAG = "OneTimeSetWallpaper"
@@ -44,6 +51,11 @@ class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(co
         return Result.success()
     }
 
+    /**
+     * Generates a Mondrian-style picture in a random manner.
+     *
+     * @return The generated bitmap
+     */
     private fun generateImage(): Bitmap {
         val defaultDisplay =
             DisplayManagerCompat.getInstance(applicationContext).getDisplay(Display.DEFAULT_DISPLAY)
@@ -55,9 +67,16 @@ class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(co
         )
 
         val lineGenerator = RandomLineGenerator(canvasSize)
-        return ImageGenerator(lineGenerator).generateImage()
+        return RandomImageGenerator(lineGenerator).generateImage()
     }
 
+    /**
+     * Sets the system and/or lock-screen wallpapers.
+     *
+     * @param bitmap The bitmap to set as wallpaper
+     * @param systemWallpaperEnabled Indicates if the system wallpaper should be set
+     * @param lockScreenWallpaperEnabled Indicates if the lock-screen wallpaper should be set
+     */
     private fun setLockScreenWallpaper(
         bitmap: Bitmap, systemWallpaperEnabled: Boolean, lockScreenWallpaperEnabled: Boolean
     ) {
@@ -76,6 +95,11 @@ class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(co
     }
 }
 
+/**
+ * Schedules the worker that sets the wallpaper to run immediately and also periodically at every midnight.
+ *
+ * @param context The application context
+ */
 fun schedulePeriodicSetWallpaperWorker(context: Context) {
     // initial delay is the time until midnight
     val initialDelay = Calendar.getInstance().apply {

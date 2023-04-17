@@ -6,13 +6,34 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
+/**
+ * Interface for generating the lines of a Mondrian-style picture.
+ */
 abstract class LineGenerator(val canvasSize: Size) {
+    /**
+     * Generates the lines of a Mondrian-style picture.
+     *
+     * @param numLines The number of lines to generate
+     */
     abstract fun generateLines(numLines: Int): List<Line>
 }
 
+/**
+ * Generates the lines of a Mondrian-style picture in a random manner.
+ *
+ * @param canvasSize The size of the canvas
+ */
 class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
+    /**
+     * The width of the lines
+     */
     private val strokeWidth = canvasSize.width / 50
 
+    /**
+     * Generates the lines of a Mondrian-style picture in a random manner.
+     *
+     * @param numLines The number of lines to generate
+     */
     override fun generateLines(numLines: Int): List<Line> {
         return buildList {
 
@@ -38,7 +59,7 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
             ) // bottom
 
             for (i in 0 until numLines) {
-                val alignment = getNextLineAlignment(this, numLines)
+                val alignment = getRandomLineAlignment(this, numLines)
 
                 val parallelLinePositions =
                     filter { it.alignment == alignment }.map { it.fixCoordinate }
@@ -60,7 +81,14 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
         }
     }
 
-    private fun getNextLineAlignment(lines: List<Line>, numLines: Int): LineAlignment {
+    /**
+     * Gets a random alignment for the next line.
+     * Maintains a minimum number of lines per orientation.
+     *
+     * @param lines The current lines
+     * @param numLines The maximum number of lines
+     */
+    private fun getRandomLineAlignment(lines: List<Line>, numLines: Int): LineAlignment {
         val minAligned = 2
         val remaining = numLines - (lines.size - 4)
         if (remaining <= minAligned) {
@@ -76,6 +104,10 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
         return if (Random.nextBoolean()) LineAlignment.VERTICAL else LineAlignment.HORIZONTAL
     }
 
+    /**
+     * Gets a random position for the next line.
+     * Maintains a minimum distance between lines.
+     */
     private fun getRandomLinePosition(alignment: LineAlignment, existingLines: List<Int>): Int {
         var pos: Int
 

@@ -20,8 +20,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
-data class Letter(@DrawableRes val resId: Int, val index: Float) {}
+/**
+ * Represents an index-based item in an image list
+ *
+ * @param resId The id of the image resource
+ * @param index The index of the item in the list
+ */
+data class ImageListItem(@DrawableRes val resId: Int, val index: Float) {}
 
+/**
+ * Displays an animation in which the text 'MONDRIAN' is transitioned into 'IN RANDOM'.
+ *
+ * @param context The application context
+ * @param onAnimationFinished The callback to be invoked when the animation is finished
+ */
 @Composable
 fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = null) {
     var state by remember { mutableStateOf(MainActivity.AnimationState.Mondrian) }
@@ -39,14 +51,14 @@ fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = n
     }
 
     val letters = listOf(
-        Letter(R.drawable.m, animatedIndex(0, 7)),
-        Letter(R.drawable.o, animatedIndex(1, 6)),
-        Letter(R.drawable.n, animatedIndex(2, 1)),
-        Letter(R.drawable.d, animatedIndex(3, 5)),
-        Letter(R.drawable.r, animatedIndex(4, 2)),
-        Letter(R.drawable.i, animatedIndex(5, 0)),
-        Letter(R.drawable.a, animatedIndex(6, 3)),
-        Letter(R.drawable.n, animatedIndex(7, 4))
+        ImageListItem(R.drawable.m, animatedIndex(0, 7)),
+        ImageListItem(R.drawable.o, animatedIndex(1, 6)),
+        ImageListItem(R.drawable.n, animatedIndex(2, 1)),
+        ImageListItem(R.drawable.d, animatedIndex(3, 5)),
+        ImageListItem(R.drawable.r, animatedIndex(4, 2)),
+        ImageListItem(R.drawable.i, animatedIndex(5, 0)),
+        ImageListItem(R.drawable.a, animatedIndex(6, 3)),
+        ImageListItem(R.drawable.n, animatedIndex(7, 4))
     )
 
     val horizontalCenter by transition.animateFloat(
@@ -69,7 +81,7 @@ fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = n
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Canvas(modifier = Modifier.fillMaxSize(), onDraw = {
-            letters.forEach { drawLetter(it, context.resources, horizontalCenter) }
+            letters.forEach { drawImageListItem(it, context.resources, horizontalCenter) }
         })
     }
 
@@ -89,13 +101,24 @@ fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = n
     }
 }
 
-fun DrawScope.drawLetter(letter: Letter, resources: Resources, horizontalCenter: Float) {
+/**
+ * Draws an image on the canvas to a position defined by its index.
+ *
+ * @param item The image list item descriptor
+ * @param resources The context-dependent resources
+ * @param horizontalCenter The horizontal center position for the image
+ */
+fun DrawScope.drawImageListItem(
+    item: ImageListItem,
+    resources: Resources,
+    horizontalCenter: Float
+) {
     val contentWidth = 0.8f * size.width
     val imageWidth = 0.08f * size.width
     val spacingWidth = (contentWidth - 8 * imageWidth) / 7
 
     val image = (resources.getDrawable(
-        letter.resId, null
+        item.resId, null
     ) as BitmapDrawable).bitmap.let { bitmap ->
         Bitmap.createScaledBitmap(
             bitmap, imageWidth.toInt(), imageWidth.toInt(), true
@@ -104,7 +127,7 @@ fun DrawScope.drawLetter(letter: Letter, resources: Resources, horizontalCenter:
 
     drawImage(
         image.asImageBitmap(), Offset(
-            (size.width - contentWidth) / 2 + (imageWidth + spacingWidth) * letter.index,
+            (size.width - contentWidth) / 2 + (imageWidth + spacingWidth) * item.index,
             horizontalCenter * size.height - imageWidth / 2
         )
     )

@@ -4,8 +4,20 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 
+/**
+ * Represents a line alignment.
+ */
 enum class LineAlignment { HORIZONTAL, VERTICAL }
 
+/**
+ * Represents a horizontal or vertical line in a Mondrian-style picture
+ *
+ * @param alignment The alignment of the line
+ * @param fixCoordinate If the line is vertical, stores the X coordinate, Y otherwise
+ * @param dynamicCoordinates If the line is vertical, stores the top and bottom, otherwise left and right
+ * @param strokeWidth The width of the line
+ * @param visible Indicates if the line is visible
+ */
 data class Line(
     val alignment: LineAlignment,
     val fixCoordinate: Int,
@@ -26,7 +38,12 @@ data class Line(
         get() = if (alignment == LineAlignment.HORIZONTAL) fixCoordinate else dynamicCoordinates.second
 }
 
-fun Canvas.drawLine(line: Line): Unit {
+/**
+ * Draws a line on the canvas.
+ *
+ * @param line The line
+ */
+fun Canvas.drawLine(line: Line) {
     val paint = Paint().apply {
         color = Color.BLACK
         isAntiAlias = true

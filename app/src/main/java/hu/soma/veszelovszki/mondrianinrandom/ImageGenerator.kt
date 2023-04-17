@@ -6,19 +6,50 @@ import android.graphics.Color
 import androidx.core.graphics.createBitmap
 import kotlin.random.Random
 
-class ImageGenerator(
+/**
+ * Interface for generating a Mondrian-style picture.
+ */
+abstract class ImageGenerator() {
+    /**
+     * Generates a Mondrian-style picture.
+     */
+    abstract fun generateImage(): Bitmap
+}
+
+/**
+ * Generates a Mondrian-style picture in a random manner.
+ *
+ * @param lineGenerator A line generator
+ */
+class RandomImageGenerator(
     private val lineGenerator: LineGenerator
-) {
+): ImageGenerator() {
+    /**
+     * The target bitmap
+     */
     private val bitmap =
         createBitmap(lineGenerator.canvasSize.width, lineGenerator.canvasSize.height)
+
+    /**
+     * The target canvas
+     */
     private val canvas = Canvas(bitmap)
+
+    /**
+     * The rectangles that will be drawn between the generated lines
+     */
     private val rectangles = mutableListOf(
         Rectangle(
             0, 0, lineGenerator.canvasSize.width, lineGenerator.canvasSize.height
         )
     )
 
-    fun generateImage(): Bitmap {
+    /**
+     * Generates a Mondrian-style picture in a random manner.
+     *
+     * @return The generated bitmap
+     */
+    override fun generateImage(): Bitmap {
         canvas.drawColor(Color.WHITE)
 
         val numVisibleLines = Random.nextInt(5, 9)
@@ -38,7 +69,7 @@ class ImageGenerator(
             rectangles.addAll(newRectangles)
         }
 
-        assignFillColors()
+        assignRandomFillColors()
 
         rectangles.forEach {
             canvas.drawRect(it)
@@ -51,7 +82,10 @@ class ImageGenerator(
         return bitmap
     }
 
-    private fun assignFillColors() {
+    /**
+     * Assigns random fill colors to the rectangles.
+     */
+    private fun assignRandomFillColors() {
         val numColoredRectangles = Random.nextInt(3, 6)
 
         for (i in 0 until numColoredRectangles) {
@@ -66,11 +100,15 @@ class ImageGenerator(
             }
 
             val rect = candidates.random()
-            rect.color = getNextFillColor(rect.area)
+            rect.color = getRandomFillColor(rect.area)
         }
     }
 
-    private fun getNextFillColor(area: Int): Int {
+    /**
+     * Gets a random fill color for a rectangle.
+     * Maintains an even distribution of the colors.
+     */
+    private fun getRandomFillColor(area: Int): Int {
         val colors = buildList {
             add(Color.RED)
             add(Color.YELLOW)

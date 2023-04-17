@@ -14,6 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import hu.soma.veszelovszki.mondrianinrandom.ui.theme.MondrianInRandomTheme
 
+/**
+ * This is the launcher activity of the application.
+ * First it displays an animation with the text 'Mondrian'.
+ * Then it displays the feature selector, where the user decides whether to enable the home and lock-screen wallpaper generation.
+ * When the 'SAVE & CLOSE' button is clicked, the application finishes.
+ */
 class MainActivity : ComponentActivity() {
     enum class MainPageState { Animation, FeatureSelector }
 
@@ -44,7 +50,6 @@ class MainActivity : ComponentActivity() {
 
                                     schedulePeriodicSetWallpaperWorker(this)
                                     finishAndRemoveTask()
-
                                 })
                         }
                     }
