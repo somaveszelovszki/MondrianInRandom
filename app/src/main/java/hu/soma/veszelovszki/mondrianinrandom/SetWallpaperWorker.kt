@@ -1,7 +1,9 @@
 package hu.soma.veszelovszki.mondrianinrandom
 
 import android.app.WallpaperManager
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
@@ -20,15 +22,25 @@ class BootCompletedReceiver : BroadcastReceiver() {
     }
 }
 
-class SetWallpaperWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
     companion object {
         const val ONE_TIME_WORKER_TAG = "OneTimeSetWallpaper"
         const val PERIODIC_WORKER_TAG = "PeriodicSetWallpaper"
     }
 
     override fun doWork(): Result {
-        Log.d(TAG, "Updating wallpaper")
-        generateImage().also { bitmap -> setLockScreenWallpaper(bitmap) }
+        val prefs = PreferenceManager(applicationContext)
+
+        if (!prefs.systemWallpaperEnabled && !prefs.lockScreenWallpaperEnabled) {
+            WorkManager.getInstance(applicationContext).cancelUniqueWork(PERIODIC_WORKER_TAG)
+        } else {
+            generateImage().also { bitmap ->
+                setLockScreenWallpaper(
+                    bitmap, prefs.systemWallpaperEnabled, prefs.lockScreenWallpaperEnabled
+                )
+            }
+        }
+
         return Result.success()
     }
 
@@ -46,9 +58,21 @@ class SetWallpaperWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
         return ImageGenerator(lineGenerator).generateImage()
     }
 
-    private fun setLockScreenWallpaper(bitmap: Bitmap) {
-        WallpaperManager.getInstance(applicationContext)
-            .setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
+    private fun setLockScreenWallpaper(
+        bitmap: Bitmap, systemWallpaperEnabled: Boolean, lockScreenWallpaperEnabled: Boolean
+    ) {
+        Log.i(
+            TAG, "Updating wallpaper to random-generated Mondrian picture. " + //
+                    "System: $systemWallpaperEnabled. " + //
+                    "Lock screen: $lockScreenWallpaperEnabled"
+        )
+
+        fun Boolean.toFlag(flag: Int) = if (this) flag else 0
+
+        val flags = systemWallpaperEnabled.toFlag(WallpaperManager.FLAG_SYSTEM) or //
+                lockScreenWallpaperEnabled.toFlag(WallpaperManager.FLAG_LOCK)
+
+        WallpaperManager.getInstance(applicationContext).setBitmap(bitmap, null, true, flags)
     }
 }
 
