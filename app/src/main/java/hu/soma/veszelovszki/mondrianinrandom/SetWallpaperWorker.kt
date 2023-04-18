@@ -74,8 +74,8 @@ class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(co
      * Sets the system and/or lock-screen wallpapers.
      *
      * @param bitmap The bitmap to set as wallpaper
-     * @param systemWallpaperEnabled Indicates if the system wallpaper should be set
-     * @param lockScreenWallpaperEnabled Indicates if the lock-screen wallpaper should be set
+     * @param systemWallpaperEnabled If true, the system wallpaper should be set
+     * @param lockScreenWallpaperEnabled If true, the lock-screen wallpaper should be set
      */
     private fun setLockScreenWallpaper(
         bitmap: Bitmap, systemWallpaperEnabled: Boolean, lockScreenWallpaperEnabled: Boolean
@@ -96,15 +96,13 @@ class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(co
 }
 
 /**
- * Schedules the worker that sets the wallpaper to run immediately and also periodically at every midnight.
+ * Schedules the worker that sets the wallpaper to run immediately and also periodically, once every hour.
  *
  * @param context The application context
  */
 fun schedulePeriodicSetWallpaperWorker(context: Context) {
-    // initial delay is the time until midnight
     val initialDelay = Calendar.getInstance().apply {
-        timeInMillis = System.currentTimeMillis() + Duration.ofDays(1).toMillis()
-        set(Calendar.HOUR_OF_DAY, 0)
+        timeInMillis = System.currentTimeMillis() + Duration.ofHours(1).toMillis()
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
@@ -112,12 +110,15 @@ fun schedulePeriodicSetWallpaperWorker(context: Context) {
 
     val workManager = WorkManager.getInstance(context)
 
-    Log.d(SetWallpaperWorker.TAG, "Scheduling worker to run every day at midnight")
+    Log.d(
+        SetWallpaperWorker.TAG,
+        "Scheduling worker to run once every hour. First execution will be in ${initialDelay.toMinutes()} minutes"
+    )
 
     workManager.enqueueUniquePeriodicWork(
         SetWallpaperWorker.PERIODIC_WORKER_TAG,
-        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-        PeriodicWorkRequestBuilder<SetWallpaperWorker>(Duration.ofDays(1)).setInitialDelay(
+        ExistingPeriodicWorkPolicy.KEEP,
+        PeriodicWorkRequestBuilder<SetWallpaperWorker>(Duration.ofHours(1)).setInitialDelay(
             initialDelay
         ).build()
     )
@@ -126,7 +127,7 @@ fun schedulePeriodicSetWallpaperWorker(context: Context) {
 
     workManager.enqueueUniqueWork(
         SetWallpaperWorker.ONE_TIME_WORKER_TAG,
-        ExistingWorkPolicy.REPLACE,
+        ExistingWorkPolicy.KEEP,
         OneTimeWorkRequestBuilder<SetWallpaperWorker>().build()
     )
 }
