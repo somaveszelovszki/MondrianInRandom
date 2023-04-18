@@ -19,9 +19,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.core.content.res.ResourcesCompat
 
 /**
- * Represents an index-based item in an image list
+ * Represents a letter animation state.
+ */
+enum class LetterAnimationState { Mondrian, InRandom }
+
+/**
+ * Represents an index-based item in an image list.
  *
  * @param resId The id of the image resource
  * @param index The index of the item in the list
@@ -36,18 +42,23 @@ data class ImageListItem(@DrawableRes val resId: Int, val index: Float) {}
  */
 @Composable
 fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = null) {
-    var state by remember { mutableStateOf(MainActivity.AnimationState.Mondrian) }
+    var state by remember { mutableStateOf(LetterAnimationState.Mondrian) }
     val transition = updateTransition(state, "Transition")
 
     val tweenPosition = { tween<Float>(delayMillis = 2000, durationMillis = 1500) }
-    val tweenAlpha = { tween<Float>(delayMillis = 1000, durationMillis = 1500) }
 
     val animatedIndex: @Composable (Int, Int) -> Float = { start: Int, end: Int ->
         transition.animateFloat(
             transitionSpec = { tweenPosition() }, label = "Letter Vertical Position Transition"
         ) {
-            if (it == MainActivity.AnimationState.Mondrian) start.toFloat() else end.toFloat()
+            if (it == LetterAnimationState.Mondrian) start.toFloat() else end.toFloat()
         }.value
+    }
+
+    val horizontalCenter by transition.animateFloat(
+        transitionSpec = { tweenPosition() }, label = "Letter Horizontal Position Transition"
+    ) {
+        if (it == LetterAnimationState.Mondrian) 0.45f else 0.55f
     }
 
     val letters = listOf(
@@ -61,22 +72,8 @@ fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = n
         ImageListItem(R.drawable.n, animatedIndex(7, 4))
     )
 
-    val horizontalCenter by transition.animateFloat(
-        transitionSpec = { tweenPosition() }, label = "Letter Horizontal Position Transition"
-    ) {
-        if (it == MainActivity.AnimationState.Mondrian) 0.45f else 0.55f
-    }
-
-    val alpha by transition.animateFloat(
-        transitionSpec = { tweenAlpha() }, label = "Letter Alpha Transition"
-    ) {
-        if (it == MainActivity.AnimationState.Mondrian || it == MainActivity.AnimationState.InRandom) 1.0f else 0.0f
-    }
-
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .alpha(alpha),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -85,19 +82,13 @@ fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = n
         })
     }
 
-    val finished = transition.currentState == transition.targetState
-
     when (state) {
-        MainActivity.AnimationState.Mondrian -> LaunchedEffect(Unit) {
-            state = MainActivity.AnimationState.InRandom
+        LetterAnimationState.Mondrian -> LaunchedEffect(Unit) {
+            state = LetterAnimationState.InRandom
         }
-        MainActivity.AnimationState.InRandom -> if (finished) {
-            state = MainActivity.AnimationState.Hidden
+        LetterAnimationState.InRandom -> if (transition.currentState == transition.targetState) {
+            onAnimationFinished?.invoke(Unit)
         }
-        MainActivity.AnimationState.Hidden -> if (finished) {
-            state = MainActivity.AnimationState.Finished
-        }
-        MainActivity.AnimationState.Finished -> onAnimationFinished?.invoke(Unit)
     }
 }
 
@@ -109,16 +100,16 @@ fun AnimatedLetters(context: Context, onAnimationFinished: ((Unit) -> Unit)? = n
  * @param horizontalCenter The horizontal center position for the image
  */
 fun DrawScope.drawImageListItem(
-    item: ImageListItem,
-    resources: Resources,
-    horizontalCenter: Float
+    item: ImageListItem, resources: Resources, horizontalCenter: Float
 ) {
     val contentWidth = 0.8f * size.width
     val imageWidth = 0.08f * size.width
     val spacingWidth = (contentWidth - 8 * imageWidth) / 7
 
-    val image = (resources.getDrawable(
-        item.resId, null
+    val image = (ResourcesCompat.getDrawable(
+        resources,
+        item.resId,
+        null
     ) as BitmapDrawable).bitmap.let { bitmap ->
         Bitmap.createScaledBitmap(
             bitmap, imageWidth.toInt(), imageWidth.toInt(), true

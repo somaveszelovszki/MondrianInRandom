@@ -16,7 +16,7 @@ enum class LineAlignment { HORIZONTAL, VERTICAL }
  * @param fixCoordinate If the line is vertical, stores the X coordinate, Y otherwise
  * @param dynamicCoordinates If the line is vertical, stores the top and bottom, otherwise left and right
  * @param strokeWidth The width of the line
- * @param visible Indicates if the line is visible
+ * @param visible If true, the line is visible
  */
 data class Line(
     val alignment: LineAlignment,

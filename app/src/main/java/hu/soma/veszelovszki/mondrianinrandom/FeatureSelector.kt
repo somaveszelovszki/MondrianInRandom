@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 /**
  * Displays a checkbox with a label.
  *
- * @param checked Indicates if the checkbox is checked
+ * @param checked If true, the checkbox is checked
  * @param text The text to display next to the checkbox
  * @param onCheckedChange Callback to be invoked when the checkbox is being clicked
  */
