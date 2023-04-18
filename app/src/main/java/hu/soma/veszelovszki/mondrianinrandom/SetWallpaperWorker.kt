@@ -101,8 +101,9 @@ class SetWallpaperWorker(context: Context, params: WorkerParameters) : Worker(co
  * @param context The application context
  */
 fun schedulePeriodicSetWallpaperWorker(context: Context) {
+    val interval = Duration.ofHours(1)
     val initialDelay = Calendar.getInstance().apply {
-        timeInMillis = System.currentTimeMillis() + Duration.ofHours(1).toMillis()
+        timeInMillis = System.currentTimeMillis() + interval.toMillis()
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
@@ -118,9 +119,8 @@ fun schedulePeriodicSetWallpaperWorker(context: Context) {
     workManager.enqueueUniquePeriodicWork(
         SetWallpaperWorker.PERIODIC_WORKER_TAG,
         ExistingPeriodicWorkPolicy.KEEP,
-        PeriodicWorkRequestBuilder<SetWallpaperWorker>(Duration.ofHours(1)).setInitialDelay(
-            initialDelay
-        ).build()
+        PeriodicWorkRequestBuilder<SetWallpaperWorker>(interval).setInitialDelay(initialDelay)
+            .build()
     )
 
     Log.d(SetWallpaperWorker.TAG, "Scheduling worker to run now")
