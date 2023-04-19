@@ -36,9 +36,16 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
      */
     override fun generateLines(numLines: Int): List<Line> {
         return buildList {
-
-            add(Line(LineAlignment.VERTICAL, 0, Pair(0, canvasSize.height), strokeWidth, false)) // left
-            add(Line(LineAlignment.HORIZONTAL, 0, Pair(0, canvasSize.width), strokeWidth, false)) // top
+            add(
+                Line(
+                    LineAlignment.VERTICAL, 0, Pair(0, canvasSize.height), strokeWidth, false
+                )
+            ) // left
+            add(
+                Line(
+                    LineAlignment.HORIZONTAL, 0, Pair(0, canvasSize.width), strokeWidth, false
+                )
+            ) // top
             add(
                 Line(
                     LineAlignment.VERTICAL,
@@ -89,19 +96,14 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
      * @param numLines The maximum number of lines
      */
     private fun getRandomLineAlignment(lines: List<Line>, numLines: Int): LineAlignment {
-        val minAligned = 2
-        val remaining = numLines - (lines.size - 4)
-        if (remaining <= minAligned) {
-            if (lines.count { it.visible && it.alignment == LineAlignment.VERTICAL } < minAligned) {
-                return LineAlignment.VERTICAL
-            }
-
-            if (lines.count { it.visible && it.alignment == LineAlignment.HORIZONTAL } < minAligned) {
-                return LineAlignment.HORIZONTAL
-            }
+        val guarantee = { alignment: LineAlignment, minCount: Int ->
+            val remaining = numLines - (lines.size - 4)
+            if (remaining <= minCount && lines.count { it.visible && it.alignment == alignment } < minCount) alignment else null
         }
 
-        return if (Random.nextBoolean()) LineAlignment.VERTICAL else LineAlignment.HORIZONTAL
+        return guarantee(LineAlignment.HORIZONTAL, 3) //
+            ?: guarantee(LineAlignment.VERTICAL, 2) //
+            ?: if (Random.nextBoolean()) LineAlignment.VERTICAL else LineAlignment.HORIZONTAL
     }
 
     /**
@@ -113,8 +115,7 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
 
         do {
             pos = Random.nextInt(
-                0,
-                if (alignment == LineAlignment.VERTICAL) canvasSize.width else canvasSize.height
+                0, if (alignment == LineAlignment.VERTICAL) canvasSize.width else canvasSize.height
             )
         } while (existingLines.any { abs(it - pos) < strokeWidth * 5 })
 
