@@ -23,7 +23,10 @@ class AnimationFragment : Fragment() {
             setContent {
                 AnimatedLetters(context, onAnimationFinished = {
                     Handler(Looper.getMainLooper()).postDelayed({
-                        setFragmentResult(MainActivity.FragmentRequests.Animation.name, Bundle())
+                        setFragmentResult(
+                            MainActivity.FragmentRequests.ShowAnimation.name,
+                            Bundle()
+                        )
                     }, 1000)
                 })
             }
@@ -34,7 +37,7 @@ class AnimationFragment : Fragment() {
         /**
          * Use this factory method to create a new instance of this fragment.
          *
-         * @return A new instance of AnimationFragment.
+         * @return A new instance of [AnimationFragment].
          */
         @JvmStatic
         fun newInstance() = AnimationFragment()

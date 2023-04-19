@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Represents a fragment request that is implemented by one of the activity's fragments.
      */
-    enum class FragmentRequests { Animation, AutoStartPermission, FeatureSelector }
+    enum class FragmentRequests { ShowAnimation }
 
     /**
      * The id of the content view that will store the fragments.
@@ -36,16 +36,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         supportFragmentManager.setFragmentResultListener(
-            FragmentRequests.Animation.name, this
-        ) { _, _ -> showFragment(AutoStartPermissionFragment.newInstance()) }
-
-        supportFragmentManager.setFragmentResultListener(
-            FragmentRequests.AutoStartPermission.name, this
-        ) { _, _ -> showFragment(FeatureSelectorFragment.newInstance()) }
-
-        supportFragmentManager.setFragmentResultListener(
-            FragmentRequests.FeatureSelector.name, this
-        ) { _, _ -> finishAndRemoveTask() }
+            FragmentRequests.ShowAnimation.name, this
+        ) { _, _ -> showFragment(WallpaperGeneratorFragment.newInstance()) }
 
         setContent {
             MondrianInRandomTheme {
