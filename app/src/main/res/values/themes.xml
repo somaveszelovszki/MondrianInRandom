@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.MondrianInRandom" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">@color/blue</item>
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimaryDark">@color/blue</item>
     </style>
 </resources>
