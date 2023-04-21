@@ -1,5 +1,6 @@
 package hu.soma.veszelovszki.mondrianinrandom
 
+import android.graphics.Color
 import android.util.Size
 import kotlin.math.abs
 import kotlin.math.max
@@ -22,8 +23,9 @@ abstract class LineGenerator(val canvasSize: Size) {
  * Generates the lines of a Mondrian-style picture in a random manner.
  *
  * @param canvasSize The size of the canvas
+ * @param darkTheme If true, the lines will be generated in dark theme
  */
-class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
+class RandomLineGenerator(canvasSize: Size, private val darkTheme: Boolean = false) : LineGenerator(canvasSize) {
     /**
      * The width of the lines
      */
@@ -35,15 +37,22 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
      * @param numLines The number of lines to generate
      */
     override fun generateLines(numLines: Int): List<Line> {
+        val color = if (darkTheme) Color.WHITE else Color.BLACK
+
         return buildList {
             add(
                 Line(
-                    LineAlignment.VERTICAL, 0, Pair(0, canvasSize.height), strokeWidth, false
+                    LineAlignment.VERTICAL, 0, Pair(0, canvasSize.height), strokeWidth, color, false
                 )
             ) // left
             add(
                 Line(
-                    LineAlignment.HORIZONTAL, 0, Pair(0, canvasSize.width), strokeWidth, false
+                    LineAlignment.HORIZONTAL,
+                    0,
+                    Pair(0, canvasSize.width),
+                    strokeWidth,
+                    color,
+                    false
                 )
             ) // top
             add(
@@ -52,6 +61,7 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
                     canvasSize.width,
                     Pair(0, canvasSize.height),
                     strokeWidth,
+                    color,
                     false
                 )
             ) // right
@@ -61,6 +71,7 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
                     canvasSize.height,
                     Pair(0, canvasSize.width),
                     strokeWidth,
+                    color,
                     false
                 )
             ) // bottom
@@ -83,7 +94,7 @@ class RandomLineGenerator(canvasSize: Size) : LineGenerator(canvasSize) {
 
                 val dynamicCoordinates = Pair(min(p1, p2), max(p1, p2))
 
-                add(Line(alignment, fixCoordinate, dynamicCoordinates, strokeWidth))
+                add(Line(alignment, fixCoordinate, dynamicCoordinates, strokeWidth, color))
             }
         }
     }

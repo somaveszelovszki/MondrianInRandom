@@ -9,7 +9,7 @@ import kotlin.random.Random
 /**
  * Interface for generating a Mondrian-style picture.
  */
-abstract class ImageGenerator() {
+abstract class ImageGenerator {
     /**
      * Generates a Mondrian-style picture.
      */
@@ -20,10 +20,11 @@ abstract class ImageGenerator() {
  * Generates a Mondrian-style picture in a random manner.
  *
  * @param lineGenerator A line generator
+ * @param darkTheme If true, image will be generated using dark theme.
  */
 class RandomImageGenerator(
-    private val lineGenerator: LineGenerator
-): ImageGenerator() {
+    private val lineGenerator: LineGenerator, private val darkTheme: Boolean = false
+) : ImageGenerator() {
     /**
      * The target bitmap
      */
@@ -35,22 +36,30 @@ class RandomImageGenerator(
      */
     private val canvas = Canvas(bitmap)
 
+    private val backgroundColor: Int
+        get() = if (darkTheme) Color.BLACK else Color.WHITE
+
     /**
      * The rectangles that will be drawn between the generated lines
      */
     private val rectangles = mutableListOf(
         Rectangle(
-            0, 0, lineGenerator.canvasSize.width, lineGenerator.canvasSize.height
+            0,
+            0,
+            lineGenerator.canvasSize.width,
+            lineGenerator.canvasSize.height,
+            backgroundColor
         )
     )
 
     /**
      * Generates a Mondrian-style picture in a random manner.
      *
+     * @param options The generator options
      * @return The generated bitmap
      */
     override fun generateImage(): Bitmap {
-        canvas.drawColor(Color.WHITE)
+        canvas.drawColor(backgroundColor)
 
         val numVisibleLines = Random.nextInt(5, 9)
         val allLines = lineGenerator.generateLines(numVisibleLines)
@@ -90,8 +99,8 @@ class RandomImageGenerator(
 
         for (i in 0 until numColoredRectangles) {
             val candidates = rectangles.filter { r1 ->
-                r1.color == null && rectangles.none { r2 ->
-                    r2.color != null && r1.hasCommonEdgeWith(r2)
+                r1.color == backgroundColor && rectangles.none { r2 ->
+                    r2.color != backgroundColor && r1.hasCommonEdgeWith(r2)
                 }
             }
 
@@ -115,7 +124,7 @@ class RandomImageGenerator(
             add(Color.BLUE)
 
             if (area < lineGenerator.canvasSize.width * lineGenerator.canvasSize.height / 16) {
-                add(Color.BLACK)
+                add(if (darkTheme) Color.WHITE else Color.BLACK)
             }
         }
 

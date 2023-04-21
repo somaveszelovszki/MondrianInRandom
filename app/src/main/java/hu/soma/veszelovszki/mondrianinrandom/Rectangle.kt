@@ -16,11 +16,11 @@ import kotlin.math.abs
  * @param color The color of the rectangle
  */
 data class Rectangle(
-    var left: Int = 0,
-    var top: Int = 0,
-    var right: Int = 0,
-    var bottom: Int = 0,
-    var color: Int? = null
+    var left: Int,
+    var top: Int,
+    var right: Int,
+    var bottom: Int,
+    var color: Int
 ) {
     /**
      * Converts the rectangle to a Rect type.
@@ -51,7 +51,7 @@ data class Rectangle(
     fun crop(line: Line): Rectangle {
         if (line.alignment == LineAlignment.VERTICAL) {
             return if (line.fixCoordinate <= left || line.fixCoordinate >= right || line.top >= bottom || line.bottom <= top) {
-                Rectangle()
+                Rectangle(0, 0, 0, 0, Color.WHITE)
             } else {
                 val cropLeft = abs(line.fixCoordinate - left) < abs(line.fixCoordinate - right)
 
@@ -73,7 +73,7 @@ data class Rectangle(
             }
         } else {
             return if (line.fixCoordinate <= top || line.fixCoordinate >= bottom || line.right <= left || line.left >= right) {
-                Rectangle()
+                Rectangle(0, 0, 0, 0, Color.WHITE)
             } else {
                 val cropTop = abs(line.fixCoordinate - top) < abs(line.fixCoordinate - bottom)
 
@@ -119,9 +119,9 @@ data class Rectangle(
  *
  * @param rect The rectangle
  */
-fun Canvas.drawRect(rect: Rectangle): Unit {
+fun Canvas.drawRect(rect: Rectangle) {
     val paint = Paint().apply {
-        color = rect.color ?: Color.WHITE
+        color = rect.color
         isAntiAlias = true
         isDither = true
         style = Paint.Style.FILL

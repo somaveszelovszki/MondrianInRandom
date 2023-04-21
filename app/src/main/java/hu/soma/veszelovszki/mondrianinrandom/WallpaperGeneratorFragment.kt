@@ -12,9 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,6 +75,10 @@ class WallpaperGeneratorFragment : Fragment() {
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                ThemeSelector()
+            }
+
             Box(
                 modifier = Modifier.weight(7f), contentAlignment = Alignment.Center
             ) {
@@ -124,7 +126,10 @@ class WallpaperGeneratorFragment : Fragment() {
 
                 Column(modifier = Modifier.weight(1f)) {
                     Button(modifier = buttonModifier, colors = buttonColors, onClick = {
-                        val imageGenerator = RandomImageGenerator(RandomLineGenerator(windowSize))
+                        val darkTheme = PreferenceManager(requireContext()).darkTheme
+                        val lineGenerator = RandomLineGenerator(windowSize, darkTheme = darkTheme)
+                        val imageGenerator =
+                            RandomImageGenerator(lineGenerator, darkTheme = darkTheme)
                         generatedPicture = imageGenerator.generateImage()
                         generatedPictureVersion++
                     }) {
@@ -150,6 +155,55 @@ class WallpaperGeneratorFragment : Fragment() {
     @Composable
     private fun PreviewWallpaperGenerator() {
         WallpaperGenerator(300.dp, 500.dp) {}
+    }
+
+    @Preview
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun ThemeSelector() {
+        val lightThemeText = "Light"
+        val darkThemeText = "Dark"
+
+        val prefs = PreferenceManager(requireContext())
+        var expanded by remember { mutableStateOf(false) }
+
+        var selected by remember { mutableStateOf(if (prefs.darkTheme) darkThemeText else lightThemeText) }
+
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {
+            expanded = !expanded
+        }) {
+            val color = Color.Blue
+
+            TextField(value = selected,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(text = "Theme") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    focusedIndicatorColor = color,
+                    unfocusedIndicatorColor = color,
+                    leadingIconColor = color,
+                    trailingIconColor = color,
+                    focusedTrailingIconColor = color,
+                    focusedLabelColor = color,
+                    unfocusedLabelColor = color
+                )
+            )
+
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(onClick = {
+                    selected = lightThemeText
+                    prefs.darkTheme = false
+                    expanded = false
+                }) { Text(lightThemeText) }
+
+                DropdownMenuItem(onClick = {
+                    selected = darkThemeText
+                    prefs.darkTheme = true
+                    expanded = false
+                }) { Text(darkThemeText) }
+            }
+        }
     }
 
     @Composable
@@ -206,7 +260,7 @@ class WallpaperGeneratorFragment : Fragment() {
         get() = buildAnnotatedString {
             append("Now it's time for you to generate a nice Mondrian-style picture!\n\n")
 
-            append("Choose the number of lines and tap the ")
+            append("Select theme and tap the ")
             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                 append("Generate")
             }

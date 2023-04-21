@@ -23,6 +23,7 @@ data class Line(
     val fixCoordinate: Int,
     val dynamicCoordinates: Pair<Int, Int>,
     val strokeWidth: Int,
+    val color: Int,
     val visible: Boolean = true
 ) {
     val left
@@ -45,7 +46,7 @@ data class Line(
  */
 fun Canvas.drawLine(line: Line) {
     val paint = Paint().apply {
-        color = Color.BLACK
+        color = line.color
         isAntiAlias = true
         isDither = true
         style = Paint.Style.STROKE

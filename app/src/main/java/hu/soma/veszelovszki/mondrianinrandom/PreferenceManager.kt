@@ -11,6 +11,7 @@ class PreferenceManager(context: Context) {
     private companion object {
         const val PREF_SYSTEM_WALLPAPER = "SYSTEM_WALLPAPER"
         const val PREF_LOCK_SCREEN_WALLPAPER = "LOCK_SCREEN_WALLPAPER"
+        const val PREF_DARK_THEME = "DARK_THEME"
     }
 
     /**
@@ -31,4 +32,11 @@ class PreferenceManager(context: Context) {
     var lockScreenWallpaperEnabled: Boolean
         get() = prefs.getBoolean(PREF_LOCK_SCREEN_WALLPAPER, false)
         set(enabled) = prefs.edit().putBoolean(PREF_LOCK_SCREEN_WALLPAPER, enabled).apply()
+
+    /**
+     * If true, the pictures will be generated in dark theme.
+     */
+    var darkTheme: Boolean
+        get() = prefs.getBoolean(PREF_DARK_THEME, false)
+        set(enabled) = prefs.edit().putBoolean(PREF_DARK_THEME, enabled).apply()
 }
