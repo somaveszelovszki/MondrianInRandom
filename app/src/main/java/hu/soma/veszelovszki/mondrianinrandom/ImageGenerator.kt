@@ -36,6 +36,9 @@ class RandomImageGenerator(
      */
     private val canvas = Canvas(bitmap)
 
+    /**
+     * The background color
+     */
     private val backgroundColor: Int
         get() = if (darkTheme) Color.BLACK else Color.WHITE
 
