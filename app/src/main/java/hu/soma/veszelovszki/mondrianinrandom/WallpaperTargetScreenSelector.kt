@@ -15,31 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Displays a checkbox with a label.
- *
- * @param checked If true, the checkbox is checked
- * @param text The text to display next to the checkbox
- * @param onCheckedChange Callback to be invoked when the checkbox is being clicked
- */
-@Composable
-fun LabelledCheckbox(checked: Boolean, text: String, onCheckedChange: ((Boolean) -> Unit)?) {
-    Row(
-        modifier = Modifier.width(155.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Checkbox(
-            checked = checked, onCheckedChange = onCheckedChange, colors = CheckboxDefaults.colors(
-                uncheckedColor = Color.DarkGray,
-                checkedColor = Color.DarkGray,
-                checkmarkColor = Color.White
-            )
-        )
-        Text(text, modifier = Modifier.padding(start = 2.dp))
-    }
-}
-
-/**
  * Displays checkboxes for the user to select target screen for wallpaper.
  *
  * @param defaultSystemEnabled The default value for the system wallpaper checkbox
