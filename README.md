@@ -6,4 +6,4 @@ Mondrian in Random is an Android application that gives you the opportunity to g
   <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="120px"/>
 </a>
 
-Find out more about my projects at [soma.veszelovszki.hu](soma.veszelovszki.hu)
+Find out more about my projects at [soma.veszelovszki.hu](https://soma.veszelovszki.hu)
